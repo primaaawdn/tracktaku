@@ -5,6 +5,7 @@ const bcrypt = require("bcrypt");
 module.exports = {
 	async up(queryInterface, Sequelize) {
 		const data = require("../data/users.json").map((e) => {
+			delete e.id;
 			e.createdAt = new Date();
 			e.updatedAt = new Date();
       e.password = bcrypt.hashSync(e.password, 10);

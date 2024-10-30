@@ -1,8 +1,29 @@
 [
-	{
-		"username": "alistair",
-		"email": "alistair@mail.com",
-		"password": "123456",
-		"role": "Admin"
-	}
+    {
+        "id": 1,
+        "username": "alistair",
+        "email": "alistair@mail.com",
+        "password": "123456",
+        "role": "Admin",
+        "createdAt": "2024-10-29T15:15:07.805Z",
+        "updatedAt": "2024-10-29T15:15:07.805Z"
+    },
+    {
+        "id": 2,
+        "username": "amalthea",
+        "email": "amalthea@mail.com",
+        "password": "123456",
+        "role": "User",
+        "createdAt": "2024-10-29T15:34:16.678Z",
+        "updatedAt": "2024-10-29T15:34:16.678Z"
+    },
+    {
+        "id": 3,
+        "username": "araneia",
+        "email": "araneia@mail.com",
+        "password": "123456",
+        "role": "User",
+        "createdAt": "2024-10-29T15:36:10.156Z",
+        "updatedAt": "2024-10-29T15:36:10.156Z"
+    }
 ]

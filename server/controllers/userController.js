@@ -4,19 +4,21 @@ const { signToken } = require("../helpers/jwt");
 
 exports.register = async (req, res, next) => {
 	// console.log(req.body);
-	const { username, email, password, role } = req.body;
+	const { username, email, password } = req.body;
 
 	try {
 		const newUser = await User.create({
 			username,
 			email,
 			password,
-			role: 'User',
 		});
 
 		res.status(201).json(`Welcome, ${newUser.username}`);
 	} catch (error) {
-		next(error)
+		if (error.name === 'SequelizeUniqueConstraintError') {
+			return res.status(400).json({ message: 'Email is taken' });
+		}
+		next(error);
 	}
 };
 
@@ -25,27 +27,27 @@ exports.login = async (req, res, next) => {
 		const { email, password } = req.body;
 		// console.log(password, "login user controller");
 
-		if(!email) {
-			next ({ name: "BadRequest", message: `Email is required` });
+		if (!email) {
+			next({ name: "BadRequest", message: `Email is required` });
 			return;
 		}
 
-		if(!password) {
-			next ({ name: "BadRequest", message: `Password is required` });
+		if (!password) {
+			next({ name: "BadRequest", message: `Password is required` });
 			return;
 		}
-	
-		const user = await User.findOne({ where: { email }});
+
+		const user = await User.findOne({ where: { email } });
 
 		if (!user) {
-			next ({ name: "Unauthorized", message: `Invalid email` });
+			next({ name: "Unauthorized", message: `Invalid email` });
 			return;
 		}
 
 		const passwordMatch = await bcrypt.compare(password, user.password);
 
 		if (!passwordMatch) {
-			next ({ name: "Unauthorized", message: "Invalid password" });
+			next({ name: "Unauthorized", message: "Invalid password" });
 			return;
 		}
 
@@ -54,15 +56,59 @@ exports.login = async (req, res, next) => {
 		res.status(200).json({ access_token });
 	} catch (error) {
 		// console.error(error);
-        next(error);
+		next(error);
 	}
 };
 
-exports.getAllUsers = async (req, res,next) => {
+exports.getUserById = async (req, res, next) => {
+	try {
+		const id = parseInt(req.params.id)
+		const user = await User.findByPk(id);
+		res.status(200).json(user);
+	} catch (error) {
+		next(error);
+	}
+}
+
+exports.getAllUsers = async (req, res, next) => {
 	try {
 		const users = await User.findAll();
 		res.status(200).json(users);
 	} catch (error) {
 		next(error);
 	}
+};
+
+exports.deleteUser = async (req, res, next) => {
+	try {
+		const id = parseInt(req.params.id)
+		const user = await User.findByPk(id);
+		if (!user) {
+			next({ name: "NotFound", message: `User with id:${id} not found` });
+			return;
+		}
+
+		await user.destroy();
+		res.status(200).json({ message: `User deleted successfully` });
+	} catch (error) {
+		
+	}
 }
+
+exports.updateUser = async (req, res, next) => {
+	try {
+		const id = parseInt(req.params.id);
+		const user = await User.findByPk(id);
+
+		if (!user) {
+			next({ name: "NotFound", message: `User with id:${id} not found` });
+			return;
+		}
+
+		await User.update(req.body, { where: { id: id } });
+
+		res.status(200).json({ message: `Great! You have successfully updated your profile.` });
+	} catch (error) {
+		next(error);
+	}
+};
