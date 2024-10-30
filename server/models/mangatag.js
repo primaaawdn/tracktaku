@@ -22,10 +22,10 @@ module.exports = (sequelize, DataTypes) => {
       }
     },
     tagId: {
-      type: DataTypes.INT,
+      type: DataTypes.INTEGER,
       references: {
         model: 'Tags',
-        key: 'tag_id'
+        key: 'tagId'
       }
     }
   }, {
