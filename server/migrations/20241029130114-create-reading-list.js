@@ -20,10 +20,6 @@ module.exports = {
 			mangaId: {
 				type: Sequelize.INTEGER,
 				allowNull: false,
-				references: {
-					model: "Mangas",
-					key: "id",
-				},
 			},
 			status: {
 				type: Sequelize.STRING,

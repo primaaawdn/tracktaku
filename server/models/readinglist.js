@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      ReadingList.belongsTo(models.User);
     }
   }
   ReadingList.init({
@@ -25,10 +25,6 @@ module.exports = (sequelize, DataTypes) => {
     mangaId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: {
-        model: 'Mangas',
-        key: 'mangaId'
-      }
     },
     status: DataTypes.STRING,
     progress: DataTypes.INTEGER,
