@@ -9,7 +9,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-const { errorHandler } = require("./middlewares/errorHandler");
+const { errorhandler } = require("./middlewares/errorhandler");
 
 const userRoutes = require("./routers/userRoutes");
 
@@ -19,7 +19,7 @@ const userRoutes = require("./routers/userRoutes");
 
 app.use("/user", userRoutes);
 
-app.use(errorHandler);
+app.use(errorhandler);
 
 // app.listen(port, () => {
 // 	console.log(`Server running on port ${port}`);

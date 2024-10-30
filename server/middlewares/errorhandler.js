@@ -1,4 +1,4 @@
-exports.errorHandler = (error, req, res, next) => {
+exports.errorhandler = (error, req, res, next) => {
     // console.log(error, "errorHandler");    
     switch (error.name) {
         case "SequelizeValidationError":
