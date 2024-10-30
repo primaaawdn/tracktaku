@@ -12,14 +12,12 @@ app.use(express.urlencoded({ extended: true }));
 const { errorHandler } = require("./middlewares/errorHandler");
 
 const userRoutes = require("./routers/userRoutes");
-const mangaRoutes = require("./routers/mangaRoutes");
 
 // app.get('/', (req, res) => {
 //   res.send('Hello World!');
 // });
 
 app.use("/user", userRoutes);
-app.use("/manga", mangaRoutes);
 
 app.use(errorHandler);
 
