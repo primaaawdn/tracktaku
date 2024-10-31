@@ -9,6 +9,6 @@ router.put('/progress', authentication, readingListController.updateProgress);
 router.put('/rate', authentication, readingListController.rateManga);
 router.put('/finish', authentication, readingListController.finishReading);
 router.delete('/:id', authentication, readingListController.removeMangaFromList);
-router.get('/:id', authentication, readingListController.getMangaById);
+// router.get('/:id', authentication, readingListController.getMangaById);
 
 module.exports = router;
