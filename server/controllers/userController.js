@@ -1,6 +1,7 @@
 const { User } = require("../models");
 const bcrypt = require("bcrypt");
 const { signToken } = require("../helpers/jwt");
+const { OAuth2Client } = require("google-auth-library");
 
 exports.register = async (req, res, next) => {
 	// console.log(req.body);
@@ -15,8 +16,8 @@ exports.register = async (req, res, next) => {
 
 		res.status(201).json(`Welcome, ${newUser.username}`);
 	} catch (error) {
-		if (error.name === 'SequelizeUniqueConstraintError') {
-			return res.status(400).json({ message: 'Email is taken' });
+		if (error.name === "SequelizeUniqueConstraintError") {
+			return res.status(400).json({ message: "Email is taken" });
 		}
 		next(error);
 	}
@@ -60,15 +61,48 @@ exports.login = async (req, res, next) => {
 	}
 };
 
+exports.googleLogin = async (req, res, next) => {
+	try {
+		const { token } = req.headers;
+		const client = new OAuth2Client();
+		const ticket = await client.verifyIdToken({
+			idToken: token,
+			audience: process.env.GOOGLE_CLIENT_ID,
+		});
+		const payload = ticket.getPayload();
+		const [user, created] = await User.findOrCreate({
+			where: {
+				email: payload["email"],
+			},
+			defaults: {
+				username: payload["given_name"],
+				email: payload["email"],
+				password: "password-google",
+			},
+			hooks: false,
+		});
+		const accessToken = createToken({
+			id: user.id,
+			username: user.username,
+			email: user.email,
+		});
+		res.status(200).json({ access_token: accessToken });
+	} catch (error) {
+		console.log(error);
+
+		next(error);
+	}
+};
+
 exports.getUserById = async (req, res, next) => {
 	try {
-		const id = parseInt(req.params.id)
+		const id = parseInt(req.params.id);
 		const user = await User.findByPk(id);
 		res.status(200).json(user);
 	} catch (error) {
 		next(error);
 	}
-}
+};
 
 exports.getAllUsers = async (req, res, next) => {
 	try {
@@ -81,7 +115,7 @@ exports.getAllUsers = async (req, res, next) => {
 
 exports.deleteUser = async (req, res, next) => {
 	try {
-		const id = parseInt(req.params.id)
+		const id = parseInt(req.params.id);
 		const user = await User.findByPk(id);
 		if (!user) {
 			next({ name: "NotFound", message: `User with id:${id} not found` });
@@ -90,10 +124,8 @@ exports.deleteUser = async (req, res, next) => {
 
 		await user.destroy();
 		res.status(200).json({ message: `User deleted successfully` });
-	} catch (error) {
-		
-	}
-}
+	} catch (error) {}
+};
 
 exports.updateUser = async (req, res, next) => {
 	try {
@@ -107,7 +139,9 @@ exports.updateUser = async (req, res, next) => {
 
 		await User.update(req.body, { where: { id: id } });
 
-		res.status(200).json({ message: `Great! You have successfully updated your profile.` });
+		res
+			.status(200)
+			.json({ message: `Great! You have successfully updated your profile.` });
 	} catch (error) {
 		next(error);
 	}
