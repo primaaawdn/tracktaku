@@ -2,7 +2,7 @@ const router = require("express").Router();
 const readingListController = require("../controllers/readingListController");
 const authentication = require("../middlewares/authentication");
 
-router.get('/', readingListController.getManga);
+// router.get('/', readingListController.getManga);
 router.get('/mylist', authentication, readingListController.getMyList);
 router.post('/add', authentication, readingListController.addMangaToList);
 router.put('/progress', authentication, readingListController.updateProgress);
