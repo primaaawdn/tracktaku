@@ -72,11 +72,11 @@ exports.googleLogin = async (req, res, next) => {
 		const payload = ticket.getPayload();
 		const [user, created] = await User.findOrCreate({
 			where: {
-				email: payload["email"],
+				email: payload.email,
 			},
 			defaults: {
-				username: payload["given_name"],
-				email: payload["email"],
+				username: payload.given_name,
+				email: payload.email,
 				password: "password-google",
 			},
 			hooks: false,
