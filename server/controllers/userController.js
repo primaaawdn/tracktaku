@@ -94,9 +94,11 @@ exports.googleLogin = async (req, res, next) => {
 
 exports.getUserById = async (req, res, next) => {
 	try {
-		const id = parseInt(req.params.id);
-		const user = await User.findByPk(id);
-		res.status(200).json(user);
+		const user = await User.findByPk(req.user.id);
+		if (!user) {
+			return res.status(404).json({ message: "User not found" });
+		  }
+		  res.status(200).json({ data: user });
 	} catch (error) {
 		next(error);
 	}
