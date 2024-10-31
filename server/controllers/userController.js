@@ -63,8 +63,8 @@ exports.login = async (req, res, next) => {
 
 exports.googleLogin = async (req, res, next) => {
 	try {
-		const { token } = req.headers;
-		const client = new OAuth2Client();
+		const token = req.headers.access_token;
+		const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 		const ticket = await client.verifyIdToken({
 			idToken: token,
 			audience: process.env.GOOGLE_CLIENT_ID,
@@ -81,15 +81,13 @@ exports.googleLogin = async (req, res, next) => {
 			},
 			hooks: false,
 		});
-		const accessToken = createToken({
+		const accessToken = signToken({
 			id: user.id,
 			username: user.username,
 			email: user.email,
 		});
 		res.status(200).json({ access_token: accessToken });
 	} catch (error) {
-		console.log(error);
-
 		next(error);
 	}
 };
