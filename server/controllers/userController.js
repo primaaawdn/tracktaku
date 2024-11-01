@@ -59,7 +59,7 @@ exports.login = async (req, res, next) => {
 
 exports.googleLogin = async (req, res, next) => {
 	try {
-		const token = req.headers.access_token;
+		const token = req.headers.token;
 		const client = new OAuth2Client();
 		const ticket = await client.verifyIdToken({
 			idToken: token,
@@ -84,6 +84,7 @@ exports.googleLogin = async (req, res, next) => {
 		});
 		res.status(200).json({ access_token: accessToken });
 	} catch (error) {
+		console.log("🚀 ~ exports.googleLogin= ~ error:", error)
 		next(error);
 	}
 };

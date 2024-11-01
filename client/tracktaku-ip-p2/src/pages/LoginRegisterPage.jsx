@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import Swal from "sweetalert2";
 
 export default function LoginRegisterPage() {
 	const [username, setUsername] = useState("");
@@ -13,7 +14,7 @@ export default function LoginRegisterPage() {
 		e.preventDefault();
 		try {
 			const response = await axios.post(
-				"https://tracktaku.primawidiani.online/user/login",
+				"http://localhost:80/user/login",
 				{
 					email,
 					password,
@@ -22,7 +23,7 @@ export default function LoginRegisterPage() {
 			localStorage.setItem("access_token", response.data.access_token);
 			navigate("/manga");
 		} catch (error) {
-			console.error("Login failed. Please retry.", error);
+			Swal.fire(`${error}.\nPlease come back later.`)
 		}
 	};
 
@@ -36,13 +37,13 @@ export default function LoginRegisterPage() {
 				role: "User",
 			};
 			await axios.post(
-				"https://tracktaku.primawidiani.online/user/register",
+				"http://localhost:80/user/register",
 				userData
 			);
-			console.log("Registration successful");
+			Swal.fire("Registration successful");
 			setActiveTab("login");
 		} catch (error) {
-			console.error("Registration failed. Please retry.", error);
+			Swal.fire(`${error}.\nPlease come back later.`);
 		}
 	};
 
@@ -50,7 +51,7 @@ export default function LoginRegisterPage() {
 		try {
 			console.log("Encoded JWT ID token: " + response.credential);
 			const { data } = await axios.post(
-				`https://tracktaku.primawidiani.online/user/google-login`,
+				`http://localhost:80/user/google-login`, null,
 				{
 					headers: {
 						token: response.credential,
@@ -80,25 +81,23 @@ export default function LoginRegisterPage() {
 	return (
 		<div className="container-fluid d-flex justify-content-center align-items-center py-5">
 			<div className="border border-2 rounded-2 w-50 p-5 text-center">
-				{/* Tab Navigation */}
 				<ul className="nav nav-pills nav-justified mb-3">
 					<li className="nav-item">
 						<button
-							className={`nav-link ${activeTab === "login" ? "active" : ""}`}
+							className={`btn ${activeTab === "login" ? "active btn-success" : ""}`}
 							onClick={() => setActiveTab("login")}>
 							Login
 						</button>
 					</li>
 					<li className="nav-item">
 						<button
-							className={`nav-link ${activeTab === "register" ? "active" : ""}`}
+							className={`btn ${activeTab === "register" ? "active btn-success" : ""}`}
 							onClick={() => setActiveTab("register")}>
 							Register
 						</button>
 					</li>
 				</ul>
 
-				{/* Tab Content */}
 				<div className="tab-content">
 					{activeTab === "login" && (
 						<div className="tab-pane fade show active">
@@ -125,7 +124,7 @@ export default function LoginRegisterPage() {
 								</div>
 								<button
 									type="submit"
-									className="btn btn-primary btn-block mb-4">
+									className="btn btn-success btn-block mb-4">
 									Sign in
 								</button>
 
@@ -138,7 +137,7 @@ export default function LoginRegisterPage() {
 										Not a member?{" "}
 										<span
 											onClick={() => setActiveTab("register")}
-											style={{ cursor: "pointer", color: "blue" }}>
+											style={{ cursor: "pointer", color: "green" }}>
 											Register
 										</span>
 									</p>
@@ -150,13 +149,6 @@ export default function LoginRegisterPage() {
 					{activeTab === "register" && (
 						<div className="tab-pane fade show active">
 							<form onSubmit={handleRegister}>
-								<div className="mb-3">
-									<p>Sign up with:</p>
-									<button type="button" className="btn btn-secondary mx-1">
-										<i className="fab fa-google" />
-									</button>
-								</div>
-								<p className="text-center">or:</p>
 								<div className="form-outline mb-4">
 									<input
 										type="text"
@@ -189,7 +181,7 @@ export default function LoginRegisterPage() {
 								</div>
 								<button
 									type="submit"
-									className="btn btn-primary btn-block mb-3">
+									className="btn btn-success btn-block mb-3">
 									Register
 								</button>
 							</form>

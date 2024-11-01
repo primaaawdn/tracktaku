@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import PropTypes from "prop-types";
+import Swal from "sweetalert2";
 
 export default function Homepage() {
 	const [manga, setManga] = useState([]);
 	const [covers, setCovers] = useState({});
+	const [authors, setAuthors] = useState({});
 	const [myList, setMyList] = useState([]);
 	const [currentPage, setCurrentPage] = useState(1);
 	const itemsPerPage = 12;
@@ -13,28 +15,38 @@ export default function Homepage() {
 
 	const fetchManga = async () => {
 		try {
-			const { data } = await axios.get("https://api.mangadex.org/manga?limit=36");
+			const { data } = await axios.get(
+				"https://api.mangadex.org/manga?limit=52"
+			);
 			setManga(data.data || []);
-			console.log("Fetched Manga:", data.data);
 		} catch (error) {
-			console.error("Error fetching manga:", error);
+			Swal.fire(`${error}.\nPlease come back later.`);
 		}
 	};
 
 	const fetchCoversByIds = async () => {
 		try {
 			const coverIds = manga
-				.map((item) => item.relationships.find((rel) => rel.type === "cover_art")?.id)
+				.map(
+					(item) =>
+						item.relationships.find((rel) => rel.type === "cover_art")?.id
+				)
 				.filter((id) => id);
 
-			const coverRequests = coverIds.map((id) => axios.get(`https://api.mangadex.org/cover/${id}`));
+			const coverRequests = coverIds.map((id) =>
+				axios.get(`https://api.mangadex.org/cover/${id}`)
+			);
 			const coverResponses = await Promise.all(coverRequests);
 
 			const coverMap = coverResponses.reduce((acc, response) => {
 				const fileName = response.data.data.attributes.fileName;
-				const mangaId = response.data.data.relationships.find((rel) => rel.type === "manga")?.id;
+				const mangaId = response.data.data.relationships.find(
+					(rel) => rel.type === "manga"
+				)?.id;
 				if (mangaId) {
-					acc[mangaId] = `https://uploads.mangadex.org/covers/${mangaId}/${fileName}`;
+					acc[
+						mangaId
+					] = `https://uploads.mangadex.org/covers/${mangaId}/${fileName}`;
 				}
 				return acc;
 			}, {});
@@ -45,10 +57,64 @@ export default function Homepage() {
 		}
 	};
 
-	const handleAddToList = async (id) => {
+	const fetchAuthorsByIds = async () => {
 		try {
-			await axios.post("https://tracktaku.primawidiani.online/manga/add", { mangaId: id });
-			setMyList((prevList) => [...prevList, id]);
+			const authorIds = manga
+				.map(
+					(item) => item.relationships.find((rel) => rel.type === "author")?.id
+				)
+				.filter((id) => id);
+
+			const authorRequests = authorIds.map((id) =>
+				axios.get(`https://api.mangadex.org/author/${id}`)
+			);
+			const authorResponses = await Promise.all(authorRequests);
+
+			const authorMap = authorResponses.reduce((acc, response) => {
+				const authorName = response.data.data.attributes.name;
+				const mangaId = response.data.data.relationships.find(
+					(rel) => rel.type === "manga"
+				)?.id;
+				if (mangaId) {
+					acc[mangaId] = authorName;
+				}
+				return acc;
+			}, {});
+
+			setAuthors(authorMap);
+		} catch (error) {
+			console.error("Error fetching authors:", error);
+		}
+	};
+
+	const handleAddToList = async (id) => {
+		const mangaData = {
+			userId: 1,
+			mangaId: id,
+			status: "reading",
+			progress: 0,
+			userRating: 0,
+		};
+		try {
+			const response = await axios.post(
+				"http://localhost:80/manga/add",
+				mangaData,
+				{
+					headers: {
+						Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+					},
+				}
+			);
+			if (response.status === 201) {
+				setMyList((prevList) => [
+					...prevList,
+					{
+						id,
+						title: manga.find((item) => item.id === id)?.attributes.title.en,
+					},
+				]);
+				console.log("Manga added to My List:", id);
+			}
 		} catch (error) {
 			console.error("Error adding to list:", error);
 		}
@@ -72,6 +138,7 @@ export default function Homepage() {
 	useEffect(() => {
 		if (manga.length > 0) {
 			fetchCoversByIds();
+			fetchAuthorsByIds();
 		}
 	}, [manga]);
 
@@ -90,13 +157,11 @@ export default function Homepage() {
 		<>
 			<div
 				className="homepage container-flex"
-				style={{ backgroundColor: "#E9EFEC", color: "#333333" }}
-			>
+				style={{ backgroundColor: "#E9EFEC", color: "#333333" }}>
 				<section
 					className="hero text-center py-5"
-					style={{ backgroundColor: "#16423C", color: "#ffffff" }}
-				>
-					<h1>TrackTaku</h1>
+					style={{ backgroundColor: "#16423C", color: "#ffffff" }}>
+					<h1 className="fs-1">TrackTaku</h1>
 					<p style={{ color: "#E9EFEC" }}>Track your manga reading progress</p>
 				</section>
 
@@ -105,8 +170,7 @@ export default function Homepage() {
 						{currentItems.map((item) => (
 							<div
 								key={item.id}
-								className="col max-w-sm mx-auto bg-white rounded-lg shadow-md overflow-hidden align-items-start"
-							>
+								className="col max-w-sm mx-auto bg-white rounded-lg shadow-md overflow-hidden align-items-start">
 								<div className="card shadow-sm border-0 h-100">
 									<img
 										src={covers[item.id] || "https://via.placeholder.com/150"}
@@ -115,13 +179,8 @@ export default function Homepage() {
 											width: "100%",
 											height: "500px",
 											objectFit: "cover",
-											overflow: "hidden",
-											transform: "scale(1)",
-											transition: "transform 0.3s ease",
 										}}
 										alt="Manga cover"
-										onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
-										onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
 									/>
 									<div className="card-body text-center">
 										<h5
@@ -130,22 +189,21 @@ export default function Homepage() {
 												whiteSpace: "nowrap",
 												overflow: "hidden",
 												textOverflow: "ellipsis",
-											}}
-										>
+											}}>
 											{item.attributes?.title?.en || "Untitled"}
 										</h5>
 									</div>
 									<button
-										className="btn btn-success"
+										className="btn btn-success my-1"
 										onClick={() => handleAddToList(item.id)}
-										disabled={myList.includes(item.id)}
-									>
-										{myList.includes(item.id) ? "Added to My List" : "Add to My List"}
+										disabled={myList.some((manga) => manga.id === item.id)}>
+										{myList.some((manga) => manga.id === item.id)
+											? "Added to My List"
+											: "Add to My List"}
 									</button>
 									<button
-										className="btn btn-primary"
-										onClick={() => handleViewDetail(item.id)}
-									>
+										className="btn btn-outline-success"
+										onClick={() => handleViewDetail(item.id)}>
 										Detail
 									</button>
 								</div>
@@ -153,33 +211,36 @@ export default function Homepage() {
 						))}
 					</div>
 
-					{/* Modal */}
 					{modalShow && selectedManga && (
-						<MangaDetailModal manga={selectedManga} onClose={closeModal} />
+						<MangaDetailModal
+							manga={selectedManga}
+							covers={covers}
+							authors={authors}
+							onClose={closeModal}
+						/>
 					)}
 
 					<div className="pagination mt-4 text-center justify-content-center">
 						<button
 							className="btn btn-secondary mx-1"
 							onClick={() => paginate(currentPage - 1)}
-							disabled={currentPage === 1}
-						>
+							disabled={currentPage === 1}>
 							Previous
 						</button>
 						{Array.from({ length: totalPages }, (_, index) => (
 							<button
 								key={index + 1}
 								onClick={() => paginate(index + 1)}
-								className={`btn ${currentPage === index + 1 ? "btn-success" : "btn-secondary"} mx-1`}
-							>
+								className={`btn ${
+									currentPage === index + 1 ? "btn-success" : "btn-secondary"
+								} mx-1`}>
 								{index + 1}
 							</button>
 						))}
 						<button
 							className="btn btn-secondary mx-1"
 							onClick={() => paginate(currentPage + 1)}
-							disabled={currentPage === totalPages}
-						>
+							disabled={currentPage === totalPages}>
 							Next
 						</button>
 					</div>
@@ -189,74 +250,76 @@ export default function Homepage() {
 	);
 }
 
-function MangaDetailModal({ manga, covers, onClose }) {
-    
-    const coverUrl = covers && covers[manga.id] 
-        ? covers[manga.id] 
-        : "https://via.placeholder.com/150";
+function MangaDetailModal({ manga, authors, covers, onClose }) {
+	const coverUrl = covers[manga.id]
+		? covers[manga.id]
+		: "https://via.placeholder.com/150";
 
-    return (
-        <div className="modal show d-block">
-            <div className="modal-dialog modal-dialog-centered">
-                <div className="modal-content">
-                    <div className="modal-header">
-                        <h5 className="modal-title">{manga.attributes.title.en}</h5>
-                        <button type="button" className="btn-close" onClick={onClose}></button>
-                    </div>
-                    <div className="modal-body">
-                        <div className="image text-center mb-3">
-                            <img
-                                src={coverUrl}
-                                alt="Manga cover"
-                                height={150}
-                                width={100}
-                                style={{ objectFit: "cover" }}
-                            />
-                        </div>
-                        <p className="text">
-                            <strong>Description:</strong> {manga.attributes.description?.en || "No description available"}
-                        </p>
-                        <p className="text">
-                            <strong>Author:</strong> {manga.attributes.author || "Unknown"}
-                        </p>
-                        <p className="text">
-                            <strong>Publication Date:</strong> {manga.attributes.publicationDate || "Not specified"}
-                        </p>
-                        <p className="text">
-                            <strong>Genres:</strong> {manga.attributes.genres?.join(', ') || "No genres available"}
-                        </p>
-                        <p className="text">
-                            <strong>Status:</strong> {manga.attributes.status || "Unknown"}
-                        </p>
-                    </div>
-                    <div className="modal-footer">
-                        <button type="button" className="btn btn-secondary" onClick={onClose}>
-                            Close
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
+	return (
+		<div className="modal show d-block">
+			<div className="modal-dialog modal-dialog-centered">
+				<div className="modal-content">
+					<div className="modal-header d-flex p-2 mx-auto">
+						<h5 className="modal-title">{manga.attributes.title.en}</h5>
+						<button
+							type="button"
+							className="btn-close"
+							onClick={onClose}></button>
+					</div>
+					<div className="modal-body">
+						<div className="image text-center mb-3">
+							<img
+								src={coverUrl}
+								className="img-fluid"
+								alt={manga.attributes.title.en}
+							/>
+						</div>
+						<p>
+							<strong>Title:</strong> <br />
+							{manga.attributes.title.en || "Unknown"}
+						</p>
+						<p>
+							<strong>Description:</strong>
+							<br />
+							{manga.attributes.description.en || "No description available."}
+						</p>
+						<p>
+							<strong>Author:</strong> <br />
+							{authors[manga.id] || "Unknown"}
+						</p>
+						<p>
+							<strong>Publication Date:</strong>{" "}
+							{manga.attributes.year || "Unknown"}
+						</p>
+						<p>
+							<strong>Pub. Demographic:</strong>{" "}
+							{manga.attributes.publicationDemographic || "Unknown"}
+						</p>
+						<p>
+							<strong>Last Chapter:</strong>{" "}
+							{manga.attributes.lastChapter || "Unknown"}
+						</p>
+						<p>
+							<strong>Status:</strong> {manga.attributes.status || "Unknown"}
+						</p>
+					</div>
+					<div className="modal-footer justify-content-center">
+						<button
+							type="button"
+							className="btn btn-secondary"
+							onClick={onClose}>
+							Close
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	);
 }
 
-
 MangaDetailModal.propTypes = {
-    manga: PropTypes.shape({
-        id: PropTypes.string.isRequired,
-        attributes: PropTypes.shape({
-            title: PropTypes.shape({
-                en: PropTypes.string.isRequired,
-            }).isRequired,
-            description: PropTypes.shape({
-                en: PropTypes.string,
-            }),
-            author: PropTypes.string,
-            publicationDate: PropTypes.string,
-            genres: PropTypes.arrayOf(PropTypes.string),
-            status: PropTypes.string,
-        }).isRequired,
-    }).isRequired,
-    covers: PropTypes.object.isRequired,
-    onClose: PropTypes.func.isRequired,
+	manga: PropTypes.object.isRequired,
+	authors: PropTypes.object.isRequired,
+	covers: PropTypes.object.isRequired,
+	onClose: PropTypes.func.isRequired,
 };

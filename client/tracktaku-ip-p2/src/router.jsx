@@ -3,9 +3,7 @@ import RootLayout from "./layouts/RootLayout";
 import Homepage from "./pages/Homepage";
 import LoginRegisterPage from "./pages/LoginRegisterPage";
 import Manga from "./pages/Manga";
-import MangaDetail from "./pages/MangaDetail";
-// import UserPage from "./pages/UserPage";
-// import AllUser from "./pages/AllUser";
+import MyList from "./pages/MyList";
 
 export const router = createBrowserRouter([
 	{
@@ -22,17 +20,23 @@ export const router = createBrowserRouter([
 			},
 		],
 	},
-	// {
-	// 	path: "/my-list",
-	// 	element: <RootLayout />,
-	// 	loader: () => {
-	// 		const access_token = localStorage.getItem("access_token");
-	// 		if (!access_token) {
-	// 			throw redirect("/login");
-	// 		}
-	// 		return null;
-	// 	},
-	// },
+	{
+		path: "/mylist",
+		element: <RootLayout />,
+		loader: () => {
+			const access_token = localStorage.getItem("access_token");
+			if (!access_token) {
+				throw redirect("/login");
+			}
+			return null;
+		},
+		children: [
+			{
+				path: "",
+				element: <MyList />,
+			},
+		],
+	},
 
 	{
 		path: "/manga",
@@ -49,27 +53,6 @@ export const router = createBrowserRouter([
 				path: "",
 				element: <Manga />,
 			},
-			{
-				path: "manga/:id",
-				element: <MangaDetail />,
-			},
 		],
 	},
-	// {
-	// 	path: "/user",
-	// 	element: <RootLayout />,
-	// 	loader: () => {
-	// 		const access_token = localStorage.getItem("access_token");
-	// 		if (!access_token) {
-	// 			throw redirect("/login");
-	// 		}
-	// 		return null;
-	// 	},
-	// 	children: [
-	// 		{
-	// 			path: "user/:id",
-	// 			element: <UserPage />,
-	// 		},
-	// 	],
-	// },
 ]);

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import Swal from "sweetalert2";
 
 export default function Homepage() {
 	const [manga, setManga] = useState([]);
@@ -10,12 +11,12 @@ export default function Homepage() {
 	const fetchManga = async () => {
 		try {
 			const { data } = await axios.get(
-				`https://api.mangadex.org/manga?limit=36`,
+				`https://api.mangadex.org/manga?limit=52`,
 			);
 			setManga(data.data || []);
 			console.log("Fetched Manga:", data.data);
 		} catch (error) {
-			console.error("Error fetching manga:", error);
+			Swal.fire(`${error}.\nPlease come back later.`);
 		}
 	};
 
@@ -81,8 +82,8 @@ export default function Homepage() {
 				<section
 					className="hero text-center py-5"
 					style={{ backgroundColor: "#16423C", color: "#ffffff" }}>
-					<h1>TrackTaku</h1>
-					<p style={{ color: "#E9EFEC" }}>Track your manga reading progress</p>
+					<h1 className="fs-1">TrackTaku</h1>
+					<p className="fs-4" style={{ color: "#E9EFEC" }}>Track your manga reading progress</p>
 				</section>
 
 				<div className="container-md bg-white my-5 py-5">
