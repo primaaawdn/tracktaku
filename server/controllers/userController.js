@@ -60,10 +60,10 @@ exports.login = async (req, res, next) => {
 exports.googleLogin = async (req, res, next) => {
 	try {
 		const token = req.headers.access_token;
-		const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+		const client = new OAuth2Client();
 		const ticket = await client.verifyIdToken({
 			idToken: token,
-			audience: process.env.GOOGLE_CLIENT_ID,
+			audience: "983946789523-grl8f08nibjto9jl20e5r6mk2ikv3li0.apps.googleusercontent.com",
 		});
 		const payload = ticket.getPayload();
 		const [user, created] = await User.findOrCreate({

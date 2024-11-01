@@ -1,62 +1,53 @@
 const { ReadingList } = require("../models");
 
 exports.addMangaToList = async (req, res, next) => {
+	const userId = req.user.userId;
 	const { mangaId } = req.body;
-	const userId = req.user.userId;
-  
+
 	try {
-	  console.log("userId:", userId);
-	  console.log("mangaId:", mangaId);
-  
-	  const existingEntry = await ReadingList.findOne({
-		where: { userId, mangaId },
-	  });
-  
-	  if (existingEntry) {
-		console.log("Manga already in list");
-		next({
-		  name: "BadRequest",
-		  message: "You already add this manga on your list",
+		const [entry, created] = await ReadingList.findOrCreate({
+			where: { userId, mangaId },
+			defaults: {
+				status: "To Read",
+				progress: 0,
+				userRating: null,
+			},
 		});
-		return;
-	  }
-  
-	  const newEntry = await ReadingList.create({
-		userId,
-		mangaId,
-		status: "To Read",
-		progress: 0,
-	  });
-  
-	  console.log("New Entry Created:", newEntry);
-	  return res.status(201).json(newEntry);
-	} catch (error) {
-	  console.log("Error in addMangaToList:", error);
-	  next(error);
-	}
-  };
-  
 
-exports.removeMangaFromList = async (req, res) => {
-	const { mangaId } = req.params;
-	const userId = req.user.userId;
-
-	try {
-		const entry = await ReadingList.findOne({ where: { userId, mangaId } });
-
-		if (!entry) {
-			next({ name: "NotFound", message: "Manga not found" });
-			return;
+		if (!created) {
+			return res
+				.status(400)
+				.json({ message: "This manga is already on your reading list" });
 		}
 
-		await entry.destroy();
-		return res
-			.status(200)
-			.json({ message: "Manga is removed from your list" });
+		res
+			.status(201)
+			.json({ message: "Manga has been added to your list", entry });
 	} catch (error) {
+		console.error("Error adding manga to list:", error);
 		next(error);
 	}
 };
+
+exports.removeMangaFromList = async (req, res, next) => {
+	const userId = req.user.userId;
+	const { mangaId } = req.params;
+  
+	try {
+	  const entry = await ReadingList.findOne({ where: { userId, mangaId } });
+  
+	  if (!entry) {
+		return res.status(404).json({ message: "Manga not found in your reading list" });
+	  }
+  
+	  await entry.destroy();
+  
+	  return res.status(200).json({ message: "Manga has been removed from your list" });
+	} catch (error) {
+	  console.error("Error removing manga from list:", error);
+	  next(error);
+	}
+  };
 
 exports.updateProgress = async (req, res) => {
 	const { mangaId, progress } = req.body;
