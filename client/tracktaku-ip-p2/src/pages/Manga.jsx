@@ -97,7 +97,7 @@ export default function Homepage() {
 		};
 		try {
 			const response = await axios.post(
-				"http://localhost:80/manga/add",
+				"https://tracktaku.primawidiani.online/manga/add",
 				mangaData,
 				{
 					headers: {

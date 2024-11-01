@@ -6,7 +6,7 @@ export default function MyList() {
 
 	const fetchMyList = async () => {
 		try {
-			const { data } = await axios.get("http://localhost:80/manga/mylist", {
+			const { data } = await axios.get("https://tracktaku.primawidiani.online/manga/mylist", {
 				headers: {
 					Authorization: `Bearer ${localStorage.getItem("access_token")}`,
 				},

@@ -17,7 +17,7 @@ export default function Navbar() {
 			if (!token) return;
 
 			const { data } = await axios.get(
-				`http://localhost:80/user/${id}`
+				`https://tracktaku.primawidiani.online/user/${id}`
 			);
 			setUser(data.data);
 		} catch (error) {

@@ -14,7 +14,7 @@ export default function LoginRegisterPage() {
 		e.preventDefault();
 		try {
 			const response = await axios.post(
-				"http://localhost:80/user/login",
+				"https://tracktaku.primawidiani.online/user/login",
 				{
 					email,
 					password,
@@ -37,7 +37,7 @@ export default function LoginRegisterPage() {
 				role: "User",
 			};
 			await axios.post(
-				"http://localhost:80/user/register",
+				"https://tracktaku.primawidiani.online/user/register",
 				userData
 			);
 			Swal.fire("Registration successful");
@@ -51,7 +51,7 @@ export default function LoginRegisterPage() {
 		try {
 			console.log("Encoded JWT ID token: " + response.credential);
 			const { data } = await axios.post(
-				`http://localhost:80/user/google-login`, null,
+				`https://tracktaku.primawidiani.online/user/google-login`, null,
 				{
 					headers: {
 						token: response.credential,
