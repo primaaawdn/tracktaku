@@ -1,34 +1,41 @@
 const { ReadingList } = require("../models");
 
-exports.addMangaToList = async (req, res) => {
+exports.addMangaToList = async (req, res, next) => {
 	const { mangaId } = req.body;
 	const userId = req.user.userId;
-
+  
 	try {
-		const existingEntry = await ReadingList.findOne({
-			where: { userId, mangaId },
+	  console.log("userId:", userId);
+	  console.log("mangaId:", mangaId);
+  
+	  const existingEntry = await ReadingList.findOne({
+		where: { userId, mangaId },
+	  });
+  
+	  if (existingEntry) {
+		console.log("Manga already in list");
+		next({
+		  name: "BadRequest",
+		  message: "You already add this manga on your list",
 		});
-
-		if (existingEntry) {
-			next({
-				name: "BadRequest",
-				message: "You already add this manga on your list",
-			});
-			return;
-		}
-
-		const newEntry = await ReadingList.create({
-			userId,
-			mangaId,
-			status: "To Read",
-			progress: 0,
-		});
-
-		return res.status(201).json(newEntry);
+		return;
+	  }
+  
+	  const newEntry = await ReadingList.create({
+		userId,
+		mangaId,
+		status: "To Read",
+		progress: 0,
+	  });
+  
+	  console.log("New Entry Created:", newEntry);
+	  return res.status(201).json(newEntry);
 	} catch (error) {
-		next(error);
+	  console.log("Error in addMangaToList:", error);
+	  next(error);
 	}
-};
+  };
+  
 
 exports.removeMangaFromList = async (req, res) => {
 	const { mangaId } = req.params;
