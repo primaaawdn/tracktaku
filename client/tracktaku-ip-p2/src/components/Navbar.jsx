@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import GeminiRecom from "./GeminiRecom";
 
+
 export default function Navbar() {
 	const navigate = useNavigate();
 	const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -57,11 +58,11 @@ export default function Navbar() {
 							className="navbar-brand d-flex align-items-center text-light"
 							to="/manga">
 							<img
-								src="./assets/TrackTaku.svg"
-								height={30}
+								src="https://res.cloudinary.com/dhb9rc1xw/image/upload/v1733807078/Phase_2_-_Individual_Project_l0xffc.svg"
+								height={70}
 								alt="TrackTaku Logo"
 								loading="lazy"
-								style={{ marginRight: "8px" }}
+								style={{ marginRight: "8px", marginLeft: "8px" }}
 							/>
 						</Link>
 					) : (
@@ -69,11 +70,11 @@ export default function Navbar() {
 							className="navbar-brand d-flex align-items-center text-light"
 							to="/">
 							<img
-								src="./assets/TrackTaku.svg"
-								height={30}
+								src="https://res.cloudinary.com/dhb9rc1xw/image/upload/v1733807078/Phase_2_-_Individual_Project_l0xffc.svg"
+								height={70}
 								alt="TrackTaku Logo"
 								loading="lazy"
-								style={{ marginRight: "8px" }}
+								style={{ marginRight: "8px", marginLeft: "8px" }}
 							/>
 						</Link>
 					)}
@@ -109,19 +110,19 @@ export default function Navbar() {
 									<span
 										className="nav-link text-light ms-3"
 										onClick={toggleModal}
-										style={{ fontSize: "1rem", cursor: "pointer" }}>
+										style={{ fontSize: "1rem", cursor: "pointer", marginRight: "8px" }}>
 										Profile
 									</span>
 									<span
 										className="nav-link text-light ms-3"
 										onClick={toggleRecomModal}
-										style={{ fontSize: "1rem", cursor: "pointer" }}>
+										style={{ fontSize: "1rem", cursor: "pointer", marginRight: "8px" }}>
 										Gemini AI
 									</span>
 									<span
 										className="nav-link text-light ms-3"
 										onClick={handleLogout}
-										style={{ fontSize: "1rem", cursor: "pointer" }}>
+										style={{ fontSize: "1rem", cursor: "pointer", marginRight: "8px" }}>
 										Sign Out
 									</span>
 								</>
@@ -135,6 +136,7 @@ export default function Navbar() {
 										borderRadius: "20px",
 										backgroundColor: "#1D5C50",
 										textDecoration: "none",
+										marginRight: "8px"
 									}}>
 									Sign In
 								</Link>

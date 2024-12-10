@@ -63,7 +63,7 @@ exports.googleLogin = async (req, res, next) => {
 		const client = new OAuth2Client();
 		const ticket = await client.verifyIdToken({
 			idToken: token,
-			audience: "983946789523-grl8f08nibjto9jl20e5r6mk2ikv3li0.apps.googleusercontent.com",
+			audience: process.env.GOOGLE_CLIENT_ID,
 		});
 		const payload = ticket.getPayload();
 		const [user, created] = await User.findOrCreate({

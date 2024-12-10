@@ -23,7 +23,7 @@ export default function LoginRegisterPage() {
 			localStorage.setItem("access_token", response.data.access_token);
 			navigate("/manga");
 		} catch (error) {
-			Swal.fire(`${error}.\nPlease come back later.`)
+			Swal.fire(`${error}.\nPlease come back later.`);
 		}
 	};
 
@@ -51,7 +51,8 @@ export default function LoginRegisterPage() {
 		try {
 			console.log("Encoded JWT ID token: " + response.credential);
 			const { data } = await axios.post(
-				`https://tracktaku.primawidiani.online/user/google-login`, null,
+				`https://tracktaku.primawidiani.online/user/google-login`,
+				null,
 				{
 					headers: {
 						token: response.credential,
@@ -67,8 +68,7 @@ export default function LoginRegisterPage() {
 
 	useEffect(() => {
 		window.google.accounts.id.initialize({
-			client_id:
-				"983946789523-grl8f08nibjto9jl20e5r6mk2ikv3li0.apps.googleusercontent.com",
+			client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
 			callback: handleCredentialResponse,
 		});
 		window.google.accounts.id.renderButton(
@@ -84,14 +84,18 @@ export default function LoginRegisterPage() {
 				<ul className="nav nav-pills nav-justified mb-3">
 					<li className="nav-item">
 						<button
-							className={`btn ${activeTab === "login" ? "active btn-success" : ""}`}
+							className={`btn ${
+								activeTab === "login" ? "active btn-success" : ""
+							}`}
 							onClick={() => setActiveTab("login")}>
 							Login
 						</button>
 					</li>
 					<li className="nav-item">
 						<button
-							className={`btn ${activeTab === "register" ? "active btn-success" : ""}`}
+							className={`btn ${
+								activeTab === "register" ? "active btn-success" : ""
+							}`}
 							onClick={() => setActiveTab("register")}>
 							Register
 						</button>
@@ -128,7 +132,7 @@ export default function LoginRegisterPage() {
 									Sign in
 								</button>
 
-								<div className="justify-item-center mb-4">
+								<div className="d-flex justify-content-center mb-4">
 									<div id="buttonDiv"></div>
 								</div>
 
@@ -184,6 +188,16 @@ export default function LoginRegisterPage() {
 									className="btn btn-success btn-block mb-3">
 									Register
 								</button>
+								<div className="text-center">
+									<p>
+										Have an account?{" "}
+										<span
+											onClick={() => setActiveTab("login")}
+											style={{ cursor: "pointer", color: "green" }}>
+											Login
+										</span>
+									</p>
+								</div>
 							</form>
 						</div>
 					)}

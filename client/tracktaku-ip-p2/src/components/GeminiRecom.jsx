@@ -2,7 +2,8 @@ import axios from "axios";
 import { useState } from "react";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const genAI = new GoogleGenerativeAI("AIzaSyAAS3HW0JQRNWaBArIZvizCMiffwkTk54I");
+const geminiKey = import.meta.env.VITE_GEMINI_KEY;
+const genAI = new GoogleGenerativeAI(geminiKey);
 
 const GeminiRecom = () => {
 	const [userPrompt, setUserPrompt] = useState("");
